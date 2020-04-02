@@ -10,6 +10,7 @@ import ru.geekbrains.base.BaseScreen;
 import ru.geekbrains.exception.GameException;
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.sprites.Background;
+import ru.geekbrains.sprites.MainShip;
 import ru.geekbrains.sprites.Star;
 
 public class GameScreen extends BaseScreen {
@@ -18,6 +19,7 @@ public class GameScreen extends BaseScreen {
 
     private Texture bg;
     private Background background;
+    private MainShip mainShip;
 
     private TextureAtlas atlas;
 
@@ -45,6 +47,7 @@ public class GameScreen extends BaseScreen {
         for (Star star : stars) {
             star.resize(worldBounds);
         }
+        mainShip.resize(worldBounds);
     }
 
     @Override
@@ -66,7 +69,8 @@ public class GameScreen extends BaseScreen {
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer, int button) {
-        return super.touchDown(touch, pointer, button);
+        mainShip.touchDown(touch, pointer,button);
+        return false;
     }
 
     @Override
@@ -81,6 +85,7 @@ public class GameScreen extends BaseScreen {
             for (int i = 0; i < STAR_COUNT; i++) {
                 stars[i] =  new Star(atlas);
             }
+            mainShip = new MainShip(atlas);
         } catch (GameException e) {
             throw new RuntimeException(e);
         }
@@ -90,6 +95,7 @@ public class GameScreen extends BaseScreen {
         for (Star star : stars) {
             star.update(delta);
         }
+        mainShip.update(delta);
     }
 
     private void draw() {
@@ -100,6 +106,7 @@ public class GameScreen extends BaseScreen {
         for (Star star : stars) {
             star.draw(batch);
         }
+        mainShip.draw(batch);
         batch.end();
     }
 }
