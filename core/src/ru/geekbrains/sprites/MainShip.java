@@ -1,6 +1,8 @@
 package ru.geekbrains.sprites;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -8,6 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import ru.geekbrains.base.Sprite;
 import ru.geekbrains.exception.GameException;
 import ru.geekbrains.math.Rect;
+import ru.geekbrains.math.Rnd;
 import ru.geekbrains.pool.BulletPool;
 
 public class MainShip extends Sprite {
@@ -30,6 +33,11 @@ public class MainShip extends Sprite {
     private int leftPointer = INVALID_POINTER;
     private int rightPointer = INVALID_POINTER;
 
+    private Sound bulletSound;
+
+    private float bulletInterval = 0.15f;
+    private float bulletTimer;
+
     public MainShip(TextureAtlas atlas, BulletPool bulletPool) throws GameException {
         super(atlas.findRegion("main_ship"), 1, 2, 2);
         this.bulletPool = bulletPool;
@@ -37,6 +45,7 @@ public class MainShip extends Sprite {
         bulletV = new Vector2(0, 0.5f);
         v0 = new Vector2(0.5f, 0);
         v = new Vector2();
+        bulletTimer = Rnd.nextFloat(0, 0.5f);
     }
 
     @Override
@@ -56,6 +65,11 @@ public class MainShip extends Sprite {
         if (getRight() > worldBounds.getRight()) {
             setRight(worldBounds.getRight());
             stop();
+        }
+        bulletTimer += delta;
+        if (bulletTimer >= bulletInterval) {
+            bulletTimer = 0;
+            shoot();
         }
     }
 
@@ -109,8 +123,6 @@ public class MainShip extends Sprite {
                 pressedRight = true;
                 moveRight();
                 break;
-            case Input.Keys.UP:
-                shoot();
         }
         return false;
     }
@@ -139,9 +151,10 @@ public class MainShip extends Sprite {
         return false;
     }
 
-    public void shoot() {
+    private void shoot() {
         Bullet bullet = bulletPool.obtain();
         bullet.set(this, bulletRegion, pos, bulletV, 0.01f, worldBounds, 1);
+        setBulletSound();
     }
 
     private void moveRight() {
@@ -154,5 +167,10 @@ public class MainShip extends Sprite {
 
     private void stop() {
         v.setZero();
+    }
+
+    private void setBulletSound(){
+        bulletSound = Gdx.audio.newSound(Gdx.files.internal("sounds/bullet.wav"));
+        bulletSound.play(0.5f);
     }
 }
