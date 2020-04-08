@@ -15,10 +15,7 @@ import ru.geekbrains.exception.GameException;
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.pool.BulletPool;
 import ru.geekbrains.pool.EnemyPool;
-import ru.geekbrains.sprites.Background;
-import ru.geekbrains.sprites.Enemy;
-import ru.geekbrains.sprites.MainShip;
-import ru.geekbrains.sprites.Star;
+import ru.geekbrains.sprites.*;
 import ru.geekbrains.utils.EnemyEmitter;
 
 public class GameScreen extends BaseScreen {
@@ -138,9 +135,19 @@ public class GameScreen extends BaseScreen {
 
     private void checkCollisions() {
         List<Enemy> enemyList = enemyPool.getActiveObjects();
+        List<Bullet> bulletList = bulletPool.getActiveObjects();
         for (Enemy enemy : enemyList) {
             if (enemy.isDestroyed()) {
                 continue;
+            }
+            for(Bullet bullet : bulletList){
+                if (bullet.isDestroyed()) {
+                    continue;
+                }
+                float minBulDist = enemy.getHalfWidth() + bullet.getHalfWidth();
+                if (bullet.pos.dst(enemy.pos) < minBulDist && bullet.getOwner().equals(mainShip)) {
+                    enemy.destroy();
+                }
             }
             float minDist = enemy.getHalfWidth() + mainShip.getHalfWidth();
             if (mainShip.pos.dst(enemy.pos) < minDist) {
