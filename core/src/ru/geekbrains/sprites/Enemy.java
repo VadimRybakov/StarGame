@@ -10,6 +10,9 @@ import ru.geekbrains.pool.BulletPool;
 
 public class Enemy extends Ship {
 
+    private final Vector2 vStart = new Vector2(0, -0.5f);
+    private boolean isAppeared = false;
+
     public Enemy(BulletPool bulletPool, Rect worldBounds) {
         this.bulletPool = bulletPool;
         this.worldBounds = worldBounds;
@@ -20,7 +23,20 @@ public class Enemy extends Ship {
 
     @Override
     public void update(float delta) {
-        super.update(delta);
+        pos.mulAdd(v, delta);
+        reloadTimer += delta;
+        if (reloadTimer >= reloadInterval && isAppeared) {
+            reloadTimer = 0f;
+            shoot();
+        }
+        if(pos.y >= worldBounds.getTop() - halfHeight) {
+            isAppeared = false;
+            v.set(vStart);
+        }
+        else {
+            isAppeared = true;
+            v.set(v0);
+        }
         if (getBottom() <= worldBounds.getBottom()) {
             destroy();
         }
