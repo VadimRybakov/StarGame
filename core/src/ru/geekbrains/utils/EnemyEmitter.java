@@ -37,7 +37,7 @@ public class EnemyEmitter {
     private Sound shootSound;
     private TextureRegion bulletRegion;
 
-    private float generateInterval = 4f;
+    private float generateInterval = 2f;
     private float generateTimer;
 
     private final TextureRegion[] enemySmallRegion;
@@ -61,7 +61,7 @@ public class EnemyEmitter {
         this.enemyMediumRegion = Regions.split(enemy1, 1, 2, 2);
         TextureRegion enemy2 = atlas.findRegion("enemy2");
         this.enemyBigRegion = Regions.split(enemy2, 1, 2, 2);
-        this.enemySmallV = new Vector2(0, -0.1f);
+        this.enemySmallV = new Vector2(0, -0.2f);
         this.enemyMediumV = new Vector2(0, -0.03f);
         this.enemyBigV = new Vector2(0, -0.005f);
     }
@@ -72,7 +72,7 @@ public class EnemyEmitter {
             generateTimer = 0f;
             Enemy enemy = enemyPool.obtain();
             float type = (float) Math.random();
-            if (type < 0.6f) {
+            if (type < 0.5f) {
                 enemy.set(
                         enemySmallRegion,
                         enemySmallV,
@@ -85,7 +85,7 @@ public class EnemyEmitter {
                         ENEMY_SMALL_HP,
                         ENEMY_SMALL_HEIGHT
                 );
-            } else if (type < 0.85f) {
+            } else if (type < 0.8f) {
                 enemy.set(
                         enemyMediumRegion,
                         enemyMediumV,
