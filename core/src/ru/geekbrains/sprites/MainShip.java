@@ -10,14 +10,15 @@ import ru.geekbrains.exception.GameException;
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.pool.BulletPool;
 import ru.geekbrains.pool.ExplosionPool;
+import ru.geekbrains.utils.EnemyEmitter;
 
 public class MainShip extends Ship {
 
-    private static final int HP = 10;
+    private static final int HP = 100;
     private static final float SHIP_HEIGHT = 0.15f;
     private static final float BOTTOM_MARGIN = 0.05f;
     private static final int INVALID_POINTER = -1;
-    private static final float V_LEN = 0.01f;
+    private float v_len = 0.01f;
 
     private boolean pressedLeft;
     private boolean pressedRight;
@@ -26,15 +27,25 @@ public class MainShip extends Ship {
     private int rightPointer = INVALID_POINTER;
     private Vector2 tmp;
     private Vector2 dst;
+    private EnemyEmitter enemyEmitter;
 
-    public MainShip(TextureAtlas atlas, BulletPool bulletPool, ExplosionPool explosionPool, Sound shootSound) throws GameException {
+    private Vector2 bulletsPosCenter;
+    private Vector2 bulletsPosLeft;
+    private Vector2 bulletsPosRight;
+
+
+    private boolean speedFlag = false;
+    private boolean bulletSpeedFlag = false;
+    private boolean bulletCenterFlag = false;
+    private boolean bulletsLeftRightFlag = false;
+
+    public MainShip(TextureAtlas atlas, BulletPool bulletPool, ExplosionPool explosionPool, Sound shootSound, EnemyEmitter enemyEmitter) throws GameException {
         super(atlas.findRegion("main_ship"), 1, 2, 2);
         this.bulletPool = bulletPool;
         this.explosionPool = explosionPool;
         this.shootSound = shootSound;
         bulletRegion = atlas.findRegion("bulletMainShip");
         bulletV = new Vector2(0, 0.5f);
-        bulletPos = new Vector2();
         v0 = new Vector2(0.5f, 0);
         v = new Vector2();
         reloadInterval = 0.2f;
@@ -44,6 +55,10 @@ public class MainShip extends Ship {
         hp = HP;
         dst = new Vector2();
         tmp = new Vector2();
+        this.enemyEmitter = enemyEmitter;
+        bulletsPosCenter = new Vector2();
+        bulletsPosLeft = new Vector2();
+        bulletsPosRight = new Vector2();
     }
 
     @Override
@@ -56,23 +71,59 @@ public class MainShip extends Ship {
     @Override
     public void update(float delta) {
         super.update(delta);
-        bulletPos.set(pos.x, pos.y + getHalfHeight());
+        if(enemyEmitter.getLevel()%3 == 0 && enemyEmitter.getLevel() < 15 && !speedFlag) {
+            v_len *= 1.5f;
+            speedFlag = true;
+            bulletSpeedFlag = false;
+        }
+        if(enemyEmitter.getLevel()%5 == 0 && enemyEmitter.getLevel() < 15 && !bulletSpeedFlag){
+            bulletV.y *= 1.2f;
+            bulletSpeedFlag = true;
+            speedFlag = false;
+        }
+        if(enemyEmitter.getLevel() < 7 ||
+                enemyEmitter.getLevel() >= 20 ){
+            bulletsPosCenter.set(pos.x, pos.y + getHalfHeight());
+            bulletCenterFlag = true;
+        } else bulletCenterFlag = false;
+        if(enemyEmitter.getLevel() >= 7){
+            bulletsPosLeft.set(pos.x - getHalfWidth()/1.5f, pos.y );
+            bulletsPosRight.set(pos.x + getHalfWidth()/1.5f, pos.y );
+            bulletsLeftRightFlag = true;
+        } else bulletsLeftRightFlag = false;
         autoShoot(delta);
         tmp.set(dst);
         float remainingDistance = (tmp.sub(pos)).len();
-        if (remainingDistance > V_LEN) {
+        if (remainingDistance > v_len) {
             pos.add(v);
         } else {
             v.setZero();
             pos.set(dst);
         }
     }
+    @Override
+    protected void shoot() {
+        if(bulletCenterFlag){
+            Bullet bulletCenter = bulletPool.obtain();
+            bulletCenter.set(this, bulletRegion, bulletsPosCenter, bulletV, bulletHeight, worldBounds, damage);
+        }
+        if(bulletsLeftRightFlag){
+            Bullet bulletLeft = bulletPool.obtain();
+            Bullet bulletRight = bulletPool.obtain();
+            bulletLeft.set(this, bulletRegion, bulletsPosLeft, bulletV, bulletHeight, worldBounds, damage);
+            bulletRight.set(this, bulletRegion, bulletsPosRight, bulletV, bulletHeight, worldBounds, damage);
+        }
+
+
+
+        shootSound.play();
+    }
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer, int button) {
         dst.set(touch);
         dst.y = pos.y;
-        v.set(dst.cpy().sub(pos)).setLength(V_LEN);
+        v.set(dst.cpy().sub(pos)).setLength(v_len);
         return false;
     }
 
@@ -136,14 +187,4 @@ public class MainShip extends Ship {
         v.setZero();
     }
 
-    public void startNewGame(Rect worldBounds) {
-        flushDestroy();
-        hp = HP;
-        pressedLeft = false;
-        pressedRight = false;
-        leftPointer = INVALID_POINTER;
-        rightPointer = INVALID_POINTER;
-        stop();
-        pos.x = worldBounds.pos.x;
-    }
 }
