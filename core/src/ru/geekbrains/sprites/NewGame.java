@@ -8,22 +8,19 @@ import ru.geekbrains.exception.GameException;
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.screen.GameScreen;
 
-public class ButtonPlay extends ScaledButton {
-
+public class NewGame extends ScaledButton {
     private final Game game;
 
-    public ButtonPlay(TextureAtlas atlas, Game game) throws GameException {
-        super(atlas.findRegion("btPlay"));
+    public NewGame(TextureAtlas atlas, Game game) throws GameException {
+        super(atlas.findRegion("button_new_game"));
         this.game = game;
     }
 
     @Override
     public void resize(Rect worldBounds) {
-        setHeightProportion(0.25f);
-        setLeft(worldBounds.getLeft() + 0.05f);
-        setBottom(worldBounds.getBottom() + 0.05f);
+        setHeightProportion(0.05f);
+        setTop(0.2f);
     }
-
 
     @Override
     public void action() {
