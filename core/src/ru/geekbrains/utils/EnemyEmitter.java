@@ -69,7 +69,7 @@ public class EnemyEmitter {
     }
 
     public void generate(float delta, int frags) {
-        level = frags / 10 + 1;
+        level = frags / 3 + 1;
         generateTimer += delta;
         if (generateTimer >= generateInterval) {
             generateTimer = 0f;
