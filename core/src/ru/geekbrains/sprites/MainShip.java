@@ -38,6 +38,7 @@ public class MainShip extends Ship {
     private boolean bulletSpeedFlag = false;
     private boolean bulletCenterFlag = false;
     private boolean bulletsLeftRightFlag = false;
+    private boolean enemyAppearFlag = false;
 
     public MainShip(TextureAtlas atlas, BulletPool bulletPool, ExplosionPool explosionPool, Sound shootSound, EnemyEmitter enemyEmitter) throws GameException {
         super(atlas.findRegion("main_ship"), 1, 2, 2);
@@ -81,6 +82,11 @@ public class MainShip extends Ship {
             bulletSpeedFlag = true;
             speedFlag = false;
         }
+        if(enemyEmitter.getLevel()%5 == 0 && !enemyAppearFlag){
+            enemyAppearFlag = true;
+            enemyEmitter.setGenerateInterval(enemyEmitter.getGenerateInterval()*0.8f);
+        } else if(enemyEmitter.getLevel()%5 == 0) enemyAppearFlag = true;
+        else enemyAppearFlag = false;
         if(enemyEmitter.getLevel() < 7 ||
                 enemyEmitter.getLevel() >= 20 ){
             bulletsPosCenter.set(pos.x, pos.y + getHalfHeight());

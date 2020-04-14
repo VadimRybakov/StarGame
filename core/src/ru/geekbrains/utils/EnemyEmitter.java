@@ -68,6 +68,14 @@ public class EnemyEmitter {
         this.enemyBigV = new Vector2(0, -0.005f);
     }
 
+    public float getGenerateInterval() {
+        return generateInterval;
+    }
+
+    public void setGenerateInterval(float generateInterval) {
+        this.generateInterval = generateInterval;
+    }
+
     public void generate(float delta, int frags) {
         level = frags / 3 + 1;
         generateTimer += delta;
